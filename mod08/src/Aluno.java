@@ -20,11 +20,5 @@ public class Aluno {
     public void exibirResultado() {
         double media = calcularMedia();
         System.out.printf("A média do " + nome +  " é: %.2f%n", media);
-
-        if (media >= 6) {
-            System.out.println("Situação: Aprovado!");
-        } else {
-            System.out.println("Situação: Reprovado!");
-        }
     }
 }
