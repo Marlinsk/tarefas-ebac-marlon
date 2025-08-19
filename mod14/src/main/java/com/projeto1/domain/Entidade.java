@@ -1,38 +1,17 @@
 package main.java.com.projeto1.domain;
 
-import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
 public abstract class Entidade {
     private final String id;
-    private final LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 
     protected Entidade() {
         this.id = UUID.randomUUID().toString();
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = this.createdAt;
-    }
-
-    protected void touch() {
-        this.updatedAt = LocalDateTime.now();
     }
 
     public String getId() {
-        return id;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
+        return this.id;
     }
 
     @Override
@@ -43,7 +22,9 @@ public abstract class Entidade {
     }
 
     @Override
-    public final int hashCode() { return Objects.hash(this.id); }
+    public final int hashCode() {
+        return Objects.hash(this.id);
+    }
 
     @Override
     public String toString() {

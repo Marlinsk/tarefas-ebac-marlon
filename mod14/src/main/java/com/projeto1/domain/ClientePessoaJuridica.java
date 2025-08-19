@@ -3,7 +3,7 @@ package main.java.com.projeto1.domain;
 import java.time.LocalDate;
 
 public class ClientePessoaJuridica extends Cliente {
-    private final String cnpj;
+    private String cnpj;
     private String razaoSocial;
     private String nomeFantasia;
     private String inscricaoEstadual;
@@ -19,7 +19,11 @@ public class ClientePessoaJuridica extends Cliente {
     }
 
     public String getCnpj() {
-        return cnpj;
+        return this.cnpj;
+    }
+
+    public void setCnpj(String cnpj) {
+        this.cnpj = cnpj;
     }
 
     public String getRazaoSocial() {
@@ -39,7 +43,7 @@ public class ClientePessoaJuridica extends Cliente {
     }
 
     public String getInscricaoEstadual() {
-        return inscricaoEstadual;
+        return this.inscricaoEstadual;
     }
 
     public void setInscricaoEstadual(String inscricaoEstadual) {
@@ -47,7 +51,7 @@ public class ClientePessoaJuridica extends Cliente {
     }
 
     public LocalDate getDataFundacao() {
-        return dataFundacao;
+        return this.dataFundacao;
     }
 
     public void setDataFundacao(LocalDate dataFundacao) {

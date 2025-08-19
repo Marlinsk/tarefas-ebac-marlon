@@ -18,27 +18,27 @@ public class Endereco {
     }
 
     public String getLogradouro() {
-        return logradouro;
+        return this.logradouro;
     }
 
     public String getNumero() {
-        return numero;
+        return this.numero;
     }
 
     public String getBairro() {
-        return bairro;
+        return this.bairro;
     }
 
     public String getCidade() {
-        return cidade;
+        return this.cidade;
     }
 
     public String getUf() {
-        return uf;
+        return this.uf;
     }
 
     public String getCep() {
-        return cep;
+        return this.cep;
     }
 
     @Override

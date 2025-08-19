@@ -14,7 +14,7 @@ public abstract class Cliente extends Entidade {
     }
 
     public String getNome() {
-        return nome;
+        return this.nome;
     }
 
     public void setNome(String nome) {
@@ -22,7 +22,7 @@ public abstract class Cliente extends Entidade {
     }
 
     public String getEmail() {
-        return email;
+        return this.email;
     }
 
     public void setEmail(String email) {
@@ -30,7 +30,7 @@ public abstract class Cliente extends Entidade {
     }
 
     public String getContato() {
-        return contato;
+        return this.contato;
     }
 
     public void setContato(String contato) {
@@ -38,7 +38,7 @@ public abstract class Cliente extends Entidade {
     }
 
     public Endereco getEndereco() {
-        return endereco;
+        return this.endereco;
     }
 
     public void setEndereco(Endereco endereco) {
