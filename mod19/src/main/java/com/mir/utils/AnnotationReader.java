@@ -11,9 +11,7 @@ public class AnnotationReader {
                 Class<? extends Annotation> annotationType = annotation.annotationType();
                 System.out.println("Anotação encontrada: " + annotationType.getSimpleName());
 
-                Method[] methods = annotationType.getDeclaredMethods();
-
-                if (methods.length > 0) {
+                if (annotationType.getDeclaredMethods().length > 0) {
                     System.out.println("Atributos & Valores:");
                     for (Method method : annotationType.getDeclaredMethods()) {
                         try {
@@ -26,7 +24,6 @@ public class AnnotationReader {
                 } else {
                     System.out.println("Atributos & Valores: Nenhum encontrado!");
                 }
-
             }
         } else {
             System.out.println("Nenhuma anotação encontrada na classe: " + clazz.getSimpleName());
