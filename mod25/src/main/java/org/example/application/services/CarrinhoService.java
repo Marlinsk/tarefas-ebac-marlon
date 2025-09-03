@@ -57,7 +57,7 @@ public class CarrinhoService extends GenericService<Carrinho, String> implements
         Carrinho c = exigirCarrinho(codigoCarrinho);
         List<ProdutoQuantidade> itensSnapshot = new ArrayList<>(c.getItens());
         for (ProdutoQuantidade pq : itensSnapshot) {
-            c.removerProduto(pq.getProduto(), pq.getQuantidade());
+            c.removerProdutoDoCarrinho(pq.getProduto(), pq.getQuantidade());
         }
         dao.atualizar(c);
     }

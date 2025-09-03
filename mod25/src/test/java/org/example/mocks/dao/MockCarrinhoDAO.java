@@ -22,14 +22,14 @@ public class MockCarrinhoDAO extends BaseMockDAO<Carrinho, String> implements IC
     @Override
     public void adicionarProduto(String codigoCarrinho, Produto produto, int quantidade) {
         Carrinho c = exigir(codigoCarrinho);
-        c.adicionarProduto(produto, quantidade);
+        c.adicionarAoCarrinho(produto, quantidade);
         atualizar(c);
     }
 
     @Override
     public void removerProduto(String codigoCarrinho, Produto produto, int quantidade) {
         Carrinho c = exigir(codigoCarrinho);
-        c.removerProduto(produto, quantidade);
+        c.removerProdutoDoCarrinho(produto, quantidade);
         atualizar(c);
     }
 
@@ -48,22 +48,22 @@ public class MockCarrinhoDAO extends BaseMockDAO<Carrinho, String> implements IC
         return v;
     }
 
-    public Carrinho criarCarrinho(Cliente cliente) {
-        Objects.requireNonNull(cliente, "Cliente não pode ser nulo");
-        Carrinho c = new Carrinho();
-        c.setCliente(cliente);
-        cadastrar(c);
-        return c;
-    }
+    //    public Carrinho criarCarrinho(Cliente cliente) {
+    //        Objects.requireNonNull(cliente, "Cliente não pode ser nulo");
+    //        Carrinho c = new Carrinho();
+    //        c.setCliente(cliente);
+    //        cadastrar(c);
+    //        return c;
+    //    }
 
-    public void limparCarrinho(String codigoCarrinho) {
-        Carrinho c = exigir(codigoCarrinho);
-        List<ProdutoQuantidade> itens = new ArrayList<>(c.getItens());
-        for (ProdutoQuantidade pq : itens) {
-            c.removerProduto(pq.getProduto(), pq.getQuantidade());
-        }
-        atualizar(c);
-    }
+    //    public void limparCarrinho(String codigoCarrinho) {
+    //        Carrinho c = exigir(codigoCarrinho);
+    //        List<ProdutoQuantidade> itens = new ArrayList<>(c.getItens());
+    //        for (ProdutoQuantidade pq : itens) {
+    //            c.removerProdutoDoCarrinho(pq.getProduto(), pq.getQuantidade());
+    //        }
+    //        atualizar(c);
+    //    }
 
     private Carrinho exigir(String codigo) {
         Carrinho c = consultar(codigo);

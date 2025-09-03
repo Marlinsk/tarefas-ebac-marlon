@@ -48,10 +48,6 @@ public class Venda implements Persistente {
         return codigo;
     }
 
-    public void setCodigo(String codigo) {
-        this.codigo = codigo;
-    }
-
     public BigDecimal getValorTotal() {
         return valorTotal;
     }
@@ -60,7 +56,7 @@ public class Venda implements Persistente {
         return Collections.unmodifiableCollection(itens.values());
     }
 
-    public void adicionarProduto(Produto produto, int quantidade) {
+    public void registrarProdutoNaVenda(Produto produto, int quantidade) {
         if (produto == null) throw new IllegalArgumentException("Produto não pode ser nulo");
         if (quantidade <= 0) throw new IllegalArgumentException("Quantidade deve ser positiva");
 
@@ -75,27 +71,8 @@ public class Venda implements Persistente {
         recalcularTotal();
     }
 
-    public void removerProduto(Produto produto, int quantidade) {
-        if (produto == null) throw new IllegalArgumentException("Produto não pode ser nulo");
-        if (quantidade <= 0) throw new IllegalArgumentException("Quantidade deve ser positiva");
-
-        String key = produto.getCodigo();
-        ProdutoQuantidade pq = itens.get(key);
-        if (pq == null) return;
-
-        pq.remover(quantidade);
-        if (pq.getQuantidade() <= 0) {
-            itens.remove(key);
-        }
-        recalcularTotal();
-    }
-
     private void recalcularTotal() {
         this.valorTotal = itens.values().stream().map(ProdutoQuantidade::getValorTotal).reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-
-    public Nota emitirNota(String codigo, String serie, String chaveAcesso) {
-        return new Nota(codigo, serie, chaveAcesso, LocalDateTime.now(), this.getValorTotal(), this);
     }
 
     @Override

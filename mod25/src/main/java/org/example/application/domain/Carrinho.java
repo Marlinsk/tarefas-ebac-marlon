@@ -27,10 +27,6 @@ public class Carrinho implements Persistente {
         return codigo;
     }
 
-    public void setCodigo(String codigo) {
-        this.codigo = codigo;
-    }
-
     public Cliente getCliente() {
         return cliente;
     }
@@ -47,7 +43,7 @@ public class Carrinho implements Persistente {
         return Collections.unmodifiableCollection(itens.values());
     }
 
-    public void adicionarProduto(Produto produto, int quantidade) {
+    public void adicionarAoCarrinho(Produto produto, int quantidade) {
         if (produto == null) throw new IllegalArgumentException("Produto não pode ser nulo");
         if (quantidade <= 0) throw new IllegalArgumentException("Quantidade deve ser positiva");
 
@@ -62,7 +58,7 @@ public class Carrinho implements Persistente {
         recalcularTotal();
     }
 
-    public void removerProduto(Produto produto, int quantidade) {
+    public void removerProdutoDoCarrinho(Produto produto, int quantidade) {
         if (produto == null) throw new IllegalArgumentException("Produto não pode ser nulo");
         if (quantidade <= 0) throw new IllegalArgumentException("Quantidade deve ser positiva");
 
@@ -84,7 +80,7 @@ public class Carrinho implements Persistente {
     public Venda finalizarVenda(String codigoVenda) {
         Venda venda = new Venda(codigoVenda, cliente);
         for (ProdutoQuantidade pq : itens.values()) {
-            venda.adicionarProduto(pq.getProduto(), pq.getQuantidade());
+            venda.registrarProdutoNaVenda(pq.getProduto(), pq.getQuantidade());
         }
         return venda;
     }

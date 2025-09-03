@@ -61,52 +61,6 @@ public class Produto implements Persistente {
         this.valor = valor;
     }
 
-    public void aplicarDescontoPercentual(BigDecimal percentual) {
-        if (percentual == null || percentual.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Percentual inválido");
-        }
-        if (valor == null) throw new IllegalStateException("Valor do produto não definido");
-        BigDecimal fator = BigDecimal.ONE.subtract(percentual.divide(BigDecimal.valueOf(100), 6, RoundingMode.HALF_UP));
-        BigDecimal novoValor = valor.multiply(fator);
-        this.valor = normalizeMoney(novoValor.max(BigDecimal.ZERO));
-    }
-
-    public void aplicarDescontoValor(BigDecimal desconto) {
-        if (desconto == null || desconto.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Desconto inválido");
-        }
-        if (valor == null) throw new IllegalStateException("Valor do produto não definido");
-        BigDecimal novoValor = valor.subtract(desconto);
-        this.valor = normalizeMoney(novoValor.max(BigDecimal.ZERO));
-    }
-
-    public void ajustarPrecoPercentual(BigDecimal variacaoPercentual) {
-        if (variacaoPercentual == null) throw new IllegalArgumentException("Variação inválida");
-        if (valor == null) throw new IllegalStateException("Valor do produto não definido");
-        BigDecimal fator = BigDecimal.ONE.add(variacaoPercentual.divide(BigDecimal.valueOf(100), 6, RoundingMode.HALF_UP));
-        BigDecimal novoValor = valor.multiply(fator);
-        this.valor = normalizeMoney(novoValor.max(BigDecimal.ZERO));
-    }
-
-    public BigDecimal precoComDescontoPercentual(BigDecimal percentual) {
-        if (percentual == null || percentual.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Percentual inválido");
-        }
-        if (valor == null) throw new IllegalStateException("Valor do produto não definido");
-        BigDecimal fator = BigDecimal.ONE.subtract(percentual.divide(BigDecimal.valueOf(100), 6, RoundingMode.HALF_UP));
-        BigDecimal calculado = valor.multiply(fator).max(BigDecimal.ZERO);
-        return normalizeMoney(calculado);
-    }
-
-    public BigDecimal precoComDescontoValor(BigDecimal desconto) {
-        if (desconto == null || desconto.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Desconto inválido");
-        }
-        if (valor == null) throw new IllegalStateException("Valor do produto não definido");
-        BigDecimal calculado = valor.subtract(desconto).max(BigDecimal.ZERO);
-        return normalizeMoney(calculado);
-    }
-
     public void validar() {
         if (codigo == null || codigo.isEmpty()) {
             throw new IllegalStateException("Código é obrigatório");
@@ -117,17 +71,6 @@ public class Produto implements Persistente {
         if (valor == null || valor.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalStateException("Valor não pode ser negativo ou nulo");
         }
-    }
-
-    public Produto copiar() {
-        return new Produto(this.codigo, this.nome, this.descricao, this.valor);
-    }
-
-    public void atualizarParcial(Produto outro) {
-        if (outro == null) return;
-        if (outro.getNome() != null) this.nome = trimOrNull(outro.getNome());
-        if (outro.getDescricao() != null) this.descricao = trimOrNull(outro.getDescricao());
-        if (outro.getValor() != null) this.valor = normalizeMoney(outro.getValor());
     }
 
     @Override

@@ -20,7 +20,7 @@ public class NotaDAOTest extends BaseTest {
     @Test
     public void deveBuscarPorChaveSerieVendaEPeriodo() {
         Venda v = VendaBuilder.umaVenda().comCodigo("V-1").comCliente(ClienteBuilder.umCliente().comCpf(1L).build()).build();
-        v.adicionarProduto(ProdutoBuilder.umProduto().comCodigo("P1").comValor(10).build(), 2);
+        v.registrarProdutoNaVenda(ProdutoBuilder.umProduto().comCodigo("P1").comValor(10).build(), 2);
         Nota n1 = new Nota("N1", "S1", "CH-1", LocalDateTime.now().minusDays(2), v.getValorTotal(), v);
         Nota n2 = new Nota("N2", "S1", "CH-2", LocalDateTime.now().minusDays(1), BigDecimal.valueOf(50), v);
 

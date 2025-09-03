@@ -22,12 +22,12 @@ public class VendaServiceTest extends BaseTest {
         VendaService service = new VendaService(dao);
 
         Venda v1 = VendaBuilder.umaVenda().comCodigo("VX1").comCliente(ClienteBuilder.umCliente().comCpf(10L).build()).build();
-        v1.adicionarProduto(ProdutoBuilder.umProduto().comCodigo("PP1").comValor(30).build(), 1);
+        v1.registrarProdutoNaVenda(ProdutoBuilder.umProduto().comCodigo("PP1").comValor(30).build(), 1);
         v1.setDataCriacao(LocalDateTime.now().minusDays(2));
         assertTrue(service.cadastrar(v1));
 
         Venda v2 = VendaBuilder.umaVenda().comCodigo("VX2").comCliente(ClienteBuilder.umCliente().comCpf(20L).build()).build();
-        v2.adicionarProduto(ProdutoBuilder.umProduto().comCodigo("PP2").comValor(60).build(), 1);
+        v2.registrarProdutoNaVenda(ProdutoBuilder.umProduto().comCodigo("PP2").comValor(60).build(), 1);
         v2.setDataCriacao(LocalDateTime.now().minusHours(12));
         assertTrue(service.cadastrar(v2));
 

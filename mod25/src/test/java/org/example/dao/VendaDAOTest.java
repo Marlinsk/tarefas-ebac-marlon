@@ -20,13 +20,13 @@ public class VendaDAOTest extends BaseTest {
         VendaDAO dao = new VendaDAO();
 
         Venda v1 = VendaBuilder.umaVenda().comCodigo("V1").comCliente(ClienteBuilder.umCliente().comCpf(1L).build()).build();
-        v1.adicionarProduto(ProdutoBuilder.umProduto().comCodigo("P1").comValor(10).build(), 3); // 30
+        v1.registrarProdutoNaVenda(ProdutoBuilder.umProduto().comCodigo("P1").comValor(10).build(), 3); // 30
         v1.setDataCriacao(LocalDateTime.now().minusDays(3));
         assertTrue(dao.cadastrar(v1));
 
         Venda v2 = VendaBuilder.umaVenda().comCodigo("V2")
                 .comCliente(ClienteBuilder.umCliente().comCpf(2L).build()).build();
-        v2.adicionarProduto(ProdutoBuilder.umProduto().comCodigo("P2").comValor(50).build(), 1); // 50
+        v2.registrarProdutoNaVenda(ProdutoBuilder.umProduto().comCodigo("P2").comValor(50).build(), 1); // 50
         v2.setDataCriacao(LocalDateTime.now().minusDays(1));
         assertTrue(dao.cadastrar(v2));
 
