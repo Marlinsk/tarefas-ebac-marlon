@@ -24,7 +24,6 @@ public class ClienteDAOTest {
 
     @BeforeClass
     public static void beforeAll() {
-        // Conecta (igual)
         Properties props = new Properties();
         props.setProperty("user", USER);
         props.setProperty("password", PASS);
@@ -32,7 +31,6 @@ public class ClienteDAOTest {
         db.connect();
         assertTrue("Deveria conectar no banco", db.isConnected());
 
-        // 1) DDL em minúsculo (tabela real será 'cliente')
         String ddl =
                 "CREATE TABLE IF NOT EXISTS cliente (" +
                         "  id SERIAL PRIMARY KEY," +
@@ -43,7 +41,6 @@ public class ClienteDAOTest {
                         ")";
         db.execute(ddl);
 
-        // 2) Função/trigger em minúsculo (tabela cliente)
         String fun =
                 "CREATE OR REPLACE FUNCTION set_updated_at() " +
                         "RETURNS TRIGGER AS $$ " +
@@ -62,10 +59,8 @@ public class ClienteDAOTest {
                         "EXECUTE FUNCTION set_updated_at()";
         db.execute(trg);
 
-        // 3) Limpeza da tabela em minúsculo
         db.execute("TRUNCATE TABLE cliente RESTART IDENTITY");
 
-        // Instancia o DAO (se nele você usou 'cliente' minúsculo, perfeito)
         dao = new ClienteDAO(URL, USER, PASS);
     }
 
@@ -73,13 +68,11 @@ public class ClienteDAOTest {
     public void test01_conectaEConfereTabela() {
         assertTrue("Conexão deve estar ativa", db.isConnected());
 
-        // 4) Verificação no information_schema com 'cliente' minúsculo
         String sql =
                 "SELECT COUNT(*) AS total " +
                         "FROM information_schema.tables " +
                         "WHERE table_schema = 'public' AND table_name = 'cliente'";
 
-        // 5) COUNT(*) -> Long (não Integer)
         List<Long> res = db.query(sql, row -> row.get("total", Long.class));
         assertFalse("Consulta deveria retornar 1 linha", res.isEmpty());
         assertTrue("Tabela 'cliente' deveria existir", res.get(0) > 0L);

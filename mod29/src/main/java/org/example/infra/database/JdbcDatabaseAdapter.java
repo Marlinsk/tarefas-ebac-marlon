@@ -127,7 +127,7 @@ public class JdbcDatabaseAdapter implements DatabaseAdapter {
     public void close() {
         try {
             if (conn != null) {
-                if (inTx) rollback(); // evita transação pendente
+                if (inTx) rollback();
                 conn.close();
             }
         } catch (SQLException e) {
@@ -135,7 +135,6 @@ public class JdbcDatabaseAdapter implements DatabaseAdapter {
         }
     }
 
-    /** Wrapper de ResultSet como ResultRow */
     static class JdbcResultRow implements ResultRow {
         private final ResultSet rs;
 
