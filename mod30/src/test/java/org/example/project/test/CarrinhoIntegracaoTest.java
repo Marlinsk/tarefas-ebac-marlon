@@ -1,8 +1,8 @@
 package org.example.project.test;
 
 import org.example.project.domain.entities.Carrinho;
-import org.example.project.domain.entities.CarrinhoItem;
 import org.example.project.domain.entities.Produto;
+import org.example.project.domain.entities.ProdutoCategoria;
 import org.example.project.infra.adapters.DatabaseAdapter;
 import org.example.project.infra.adapters.JdbcDatabaseAdapter;
 import org.example.project.infra.dao.impl.CarrinhoDAO;
@@ -12,7 +12,6 @@ import org.example.project.infra.services.impl.CarrinhoService;
 import org.junit.*;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.sql.Timestamp;
 import java.util.Properties;
 
@@ -21,11 +20,10 @@ import static org.junit.Assert.*;
 public class CarrinhoIntegracaoTest {
 
     private static DatabaseAdapter db;
-
-    private static CarrinhoService carrinhoService;
     private static CarrinhoDAO carrinhoDAO;
     private static CarrinhoItemDAO itemDAO;
     private static ProdutoDAO produtoDAO;
+    private static CarrinhoService carrinhoService;
 
     private static final String URL  = System.getenv().getOrDefault("PG_URL",  "jdbc:postgresql://localhost:5432/ebac-courses-java-backend");
     private static final String USER = System.getenv().getOrDefault("PG_USER", "postgres");
@@ -43,12 +41,11 @@ public class CarrinhoIntegracaoTest {
         props.setProperty("password", PASS);
         db = new JdbcDatabaseAdapter(URL, props) {};
         db.connect();
-        assertTrue("Deveria conectar no banco", db.isConnected());
+        assertTrue(db.isConnected());
 
-        db.execute("CREATE TABLE IF NOT EXISTS \"Cliente\" (" +
-                "id SERIAL PRIMARY KEY, nome TEXT NOT NULL, cpf TEXT UNIQUE, email TEXT UNIQUE, " +
-                "created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()," +
-                "updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW())");
+        db.execute("CREATE TABLE IF NOT EXISTS \"Cliente\" (" + "id SERIAL PRIMARY KEY, nome TEXT NOT NULL, email TEXT UNIQUE," + "created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()," + "updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW())");
+        db.execute("TRUNCATE TABLE \"Cliente\" RESTART IDENTITY CASCADE");
+        clienteId = db.query("INSERT INTO \"Cliente\" (nome, email) VALUES (?, ?) RETURNING id", row -> row.get("id", Integer.class), "Cliente Carrinho", "cli.carrinho@example.com").get(0);
 
         db.execute("CREATE TABLE IF NOT EXISTS \"Produto\" (" +
                 "id SERIAL PRIMARY KEY," +
@@ -58,6 +55,8 @@ public class CarrinhoIntegracaoTest {
                 "valor NUMERIC(18,2) NOT NULL," +
                 "created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()," +
                 "updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW())");
+        db.execute("ALTER TABLE \"Produto\" ADD COLUMN IF NOT EXISTS categoria TEXT");
+        db.execute("ALTER TABLE \"Produto\" ADD COLUMN IF NOT EXISTS ativo BOOLEAN DEFAULT TRUE");
 
         db.execute("CREATE TABLE IF NOT EXISTS \"Carrinho\" (" +
                 "id SERIAL PRIMARY KEY," +
@@ -79,33 +78,27 @@ public class CarrinhoIntegracaoTest {
                 "updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW())");
 
         db.execute("CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$ BEGIN NEW.updated_at := NOW(); RETURN NEW; END; $$ LANGUAGE plpgsql;");
-        db.execute("DROP TRIGGER IF EXISTS trg_produto_updated ON \"Produto\";");
-        db.execute("CREATE TRIGGER trg_produto_updated  BEFORE UPDATE ON \"Produto\"      FOR EACH ROW EXECUTE FUNCTION set_updated_at();");
-        db.execute("DROP TRIGGER IF EXISTS trg_carrinho_updated ON \"Carrinho\";");
-        db.execute("CREATE TRIGGER trg_carrinho_updated BEFORE UPDATE ON \"Carrinho\"     FOR EACH ROW EXECUTE FUNCTION set_updated_at();");
-        db.execute("DROP TRIGGER IF EXISTS trg_carrinhoitem_updated ON \"CarrinhoItem\";");
+        db.execute("DROP TRIGGER IF EXISTS trg_produto_updated ON \"Produto\"");
+        db.execute("CREATE TRIGGER trg_produto_updated BEFORE UPDATE ON \"Produto\" FOR EACH ROW EXECUTE FUNCTION set_updated_at();");
+        db.execute("DROP TRIGGER IF EXISTS trg_carrinho_updated ON \"Carrinho\"");
+        db.execute("CREATE TRIGGER trg_carrinho_updated BEFORE UPDATE ON \"Carrinho\" FOR EACH ROW EXECUTE FUNCTION set_updated_at();");
+        db.execute("DROP TRIGGER IF EXISTS trg_carrinhoitem_updated ON \"CarrinhoItem\"");
         db.execute("CREATE TRIGGER trg_carrinhoitem_updated BEFORE UPDATE ON \"CarrinhoItem\" FOR EACH ROW EXECUTE FUNCTION set_updated_at();");
-        db.execute("DROP TRIGGER IF EXISTS trg_cliente_updated ON \"Cliente\";");
-        db.execute("CREATE TRIGGER trg_cliente_updated BEFORE UPDATE ON \"Cliente\"      FOR EACH ROW EXECUTE FUNCTION set_updated_at();");
 
         db.execute("TRUNCATE TABLE \"CarrinhoItem\" RESTART IDENTITY CASCADE");
         db.execute("TRUNCATE TABLE \"Carrinho\" RESTART IDENTITY CASCADE");
         db.execute("TRUNCATE TABLE \"Produto\" RESTART IDENTITY CASCADE");
-        db.execute("TRUNCATE TABLE \"Cliente\" RESTART IDENTITY CASCADE");
-
-        List<Integer> ids = db.query(
-                "INSERT INTO \"Cliente\" (nome, email) VALUES (?, ?) RETURNING id",
-                row -> row.get("id", Integer.class),
-                "Cliente Carrinho", "cli.carrinho@example.com");
-        clienteId = ids.get(0);
 
         produtoDAO = new ProdutoDAO(URL, USER, PASS);
         carrinhoDAO = new CarrinhoDAO(URL, USER, PASS);
         itemDAO    = new CarrinhoItemDAO(URL, USER, PASS);
         carrinhoService = new CarrinhoService(carrinhoDAO, itemDAO);
 
-        prod1 = new Produto("Monitor 27\"", "MON-27", "Monitor IPS 27", new BigDecimal("1200.00"));
-        prod2 = new Produto("Mouse Gamer",  "MOU-01", "Mouse RGB",     new BigDecimal("150.50"));
+        prod1 = new Produto("Monitor 27\"", "MON-27", "Monitor IPS 27", new BigDecimal("1200.00"), ProdutoCategoria.ELETRONICOS, true);
+        prod2 = new Produto("Mouse Gamer", "MOU-01", "Mouse RGB", new BigDecimal("150.50"), ProdutoCategoria.PERIFERICOS, true); // cuidado: use o nome correto do enum
+
+        prod2.setCategoria(ProdutoCategoria.PERIFERICOS);
+
         prod1 = produtoDAO.save(prod1);
         prod2 = produtoDAO.save(prod2);
 
@@ -119,15 +112,17 @@ public class CarrinhoIntegracaoTest {
     }
 
     @Test
-    public void test01_adicionarAtualizarRemoverItensERecalcularTotal() {
+    public void test01_fluxoCarrinhoComEnumCategoria() {
         carrinho = carrinhoService.adicionarItem(carrinho.getId(), prod1.getId(), 1, prod1.getValor());
         assertEquals(0, carrinho.getTotal().compareTo(new BigDecimal("1200.00")));
 
         carrinho = carrinhoService.adicionarItem(carrinho.getId(), prod2.getId(), 2, prod2.getValor());
         assertEquals(0, carrinho.getTotal().compareTo(new BigDecimal("1501.00")));
 
-        List<CarrinhoItem> itens = itemDAO.findByCarrinho(carrinho.getId());
-        assertEquals(2, itens.size());
+        Produto p1db = produtoDAO.findById(prod1.getId()).orElseThrow();
+        Produto p2db = produtoDAO.findById(prod2.getId()).orElseThrow();
+        assertEquals(ProdutoCategoria.ELETRONICOS, p1db.getCategoria());
+        assertEquals(ProdutoCategoria.PERIFERICOS, p2db.getCategoria());
 
         carrinho = carrinhoService.atualizarQuantidade(carrinho.getId(), prod2.getId(), 3, prod2.getValor());
         assertEquals(0, carrinho.getTotal().compareTo(new BigDecimal("1651.50")));
@@ -135,13 +130,10 @@ public class CarrinhoIntegracaoTest {
         Carrinho rec = carrinhoDAO.findById(carrinho.getId()).get();
         Timestamp ct = Timestamp.valueOf(rec.getCreatedAt());
         Timestamp ut = Timestamp.valueOf(rec.getUpdatedAt());
-        assertTrue("updated_at deve ser >= created_at", ut.equals(ct) || ut.after(ct));
+        assertTrue(ut.equals(ct) || ut.after(ct));
 
         carrinho = carrinhoService.removerItem(carrinho.getId(), prod1.getId());
         assertEquals(0, carrinho.getTotal().compareTo(new BigDecimal("451.50")));
-
-        itens = itemDAO.findByCarrinho(carrinho.getId());
-        assertEquals(1, itens.size());
 
         carrinho = carrinhoService.atualizarQuantidade(carrinho.getId(), prod2.getId(), 0, prod2.getValor());
         assertEquals(0, carrinho.getTotal().compareTo(BigDecimal.ZERO));

@@ -33,7 +33,7 @@ public class VendaDAOTest {
         Properties props = new Properties();
         props.setProperty("user", USER);
         props.setProperty("password", PASS);
-        db = new JdbcDatabaseAdapter(URL, props) {};
+        db = new JdbcDatabaseAdapter(URL, props);
         db.connect();
         assertTrue("Deveria conectar no banco", db.isConnected());
 
@@ -41,6 +41,17 @@ public class VendaDAOTest {
                 "id SERIAL PRIMARY KEY, nome TEXT NOT NULL, cpf TEXT UNIQUE, email TEXT UNIQUE," +
                 "created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()," +
                 "updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW())");
+
+        db.execute("CREATE UNIQUE INDEX IF NOT EXISTS uq_cliente_cpf ON \"Cliente\"(cpf)");
+
+        db.execute("ALTER TABLE \"Cliente\" ADD COLUMN IF NOT EXISTS cpf TEXT");
+        db.execute("ALTER TABLE \"Cliente\" ADD COLUMN IF NOT EXISTS tel TEXT");
+        db.execute("ALTER TABLE \"Cliente\" ADD COLUMN IF NOT EXISTS endereco TEXT");
+        db.execute("ALTER TABLE \"Cliente\" ADD COLUMN IF NOT EXISTS numero INT");
+        db.execute("ALTER TABLE \"Cliente\" ADD COLUMN IF NOT EXISTS cidade TEXT");
+        db.execute("ALTER TABLE \"Cliente\" ADD COLUMN IF NOT EXISTS estado TEXT");
+        db.execute("ALTER TABLE \"Cliente\" ADD COLUMN IF NOT EXISTS bairro TEXT");
+        db.execute("ALTER TABLE \"Cliente\" ADD COLUMN IF NOT EXISTS cep TEXT");
 
         db.execute("CREATE TABLE IF NOT EXISTS \"Venda\" (" +
                 "id SERIAL PRIMARY KEY," +

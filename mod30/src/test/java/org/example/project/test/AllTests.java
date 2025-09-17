@@ -8,6 +8,7 @@ import org.junit.runners.Suite;
         ClienteDAOServiceTest.class,
         EstoqueProdutoTest.class,
         CarrinhoIntegracaoTest.class,
+        ProdutoDAOTest.class,
         VendaDAOTest.class,
         NotaFiscalDAOTest.class
 })

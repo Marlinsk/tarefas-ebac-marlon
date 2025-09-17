@@ -26,36 +26,29 @@ public class ClienteDAO implements IClienteDAO {
         this.db.connect();
     }
 
-    public Cliente save(Cliente entity) {
-        String sql =
-                "INSERT INTO " + TABLE + " (nome, cpf, email) " +
-                        "VALUES (?, ?, ?) " +
-                        "RETURNING id, nome, cpf, email, created_at, updated_at";
-        List<Cliente> out = db.query(sql, MAPPER,
-                entity.getNome(), entity.getCpf(), entity.getEmail());
+    public Cliente save(Cliente e) {
+        String sql = "INSERT INTO " + TABLE + " (" + "nome, cpf, email, tel, endereco, numero, cidade, estado, bairro, cep" + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " + "RETURNING id, nome, cpf, email, tel, endereco, numero, cidade, estado, bairro, cep, created_at, updated_at";
+        List<Cliente> out = db.query(sql, MAPPER, e.getNome(), e.getCpf(), e.getEmail(), e.getTel(), e.getEnd(), e.getNumero(), e.getCidade(), e.getEstado(), e.getBairro(), e.getCep());
         if (out.isEmpty()) throw new RuntimeException("Falha ao inserir cliente.");
         Cliente saved = out.get(0);
-        entity.setId(saved.getId());
-        entity.setCreatedAt(saved.getCreatedAt());
-        entity.setUpdatedAt(saved.getUpdatedAt());
-        return entity;
+        e.setId(saved.getId());
+        e.setCreatedAt(saved.getCreatedAt());
+        e.setUpdatedAt(saved.getUpdatedAt());
+        return e;
     }
 
-    public Cliente update(Cliente entity) {
-        String sql =
-                "UPDATE " + TABLE + " SET nome = ?, cpf = ?, email = ? WHERE id = ? " +
-                        "RETURNING id, nome, cpf, email, created_at, updated_at";
-        List<Cliente> out = db.query(sql, MAPPER,
-                entity.getNome(), entity.getCpf(), entity.getEmail(), entity.getId());
-        if (out.isEmpty()) throw new RuntimeException("Cliente não encontrado: id=" + entity.getId());
+    public Cliente update(Cliente e) {
+        String sql = "UPDATE " + TABLE + " SET " + "nome = ?, cpf = ?, email = ?, tel = ?, endereco = ?, numero = ?, cidade = ?, estado = ?, bairro = ?, cep = ? " + "WHERE id = ? " + "RETURNING id, nome, cpf, email, tel, endereco, numero, cidade, estado, bairro, cep, created_at, updated_at";
+        List<Cliente> out = db.query(sql, MAPPER, e.getNome(), e.getCpf(), e.getEmail(), e.getTel(), e.getEnd(), e.getNumero(), e.getCidade(), e.getEstado(), e.getBairro(), e.getCep(), e.getId());
+        if (out.isEmpty()) throw new RuntimeException("Cliente não encontrado: id=" + e.getId());
         Cliente up = out.get(0);
-        entity.setCreatedAt(up.getCreatedAt());
-        entity.setUpdatedAt(up.getUpdatedAt());
-        return entity;
+        e.setCreatedAt(up.getCreatedAt());
+        e.setUpdatedAt(up.getUpdatedAt());
+        return e;
     }
 
     public Optional<Cliente> findById(Integer id) {
-        String sql = "SELECT id, nome, cpf, email, created_at, updated_at FROM " + TABLE + " WHERE id = ?";
+        String sql = "SELECT id, nome, cpf, email, tel, endereco, numero, cidade, estado, bairro, cep, created_at, updated_at " + "FROM " + TABLE + " WHERE id = ?";
         List<Cliente> list = db.query(sql, MAPPER, id);
         return list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
     }
@@ -67,12 +60,11 @@ public class ClienteDAO implements IClienteDAO {
     }
 
     public List<Cliente> findAll() {
-        String sql = "SELECT id, nome, cpf, email, created_at, updated_at FROM " + TABLE + " ORDER BY id";
+        String sql = "SELECT id, nome, cpf, email, tel, endereco, numero, cidade, estado, bairro, cep, created_at, updated_at " + "FROM " + TABLE + " ORDER BY id";
         return db.query(sql, MAPPER);
     }
 
     public void deleteById(Integer id) {
-        String sql = "DELETE FROM " + TABLE + " WHERE id = ?";
-        db.execute(sql, id);
+        db.execute("DELETE FROM " + TABLE + " WHERE id = ?", id);
     }
 }

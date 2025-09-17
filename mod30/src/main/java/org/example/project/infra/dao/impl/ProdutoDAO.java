@@ -27,31 +27,48 @@ public class ProdutoDAO implements IProdutoDAO {
     }
 
     @Override
-    public Produto save(Produto entity) {
-        String sql = "INSERT INTO " + TABLE + " (nome, codigo, descricao, valor) " + "VALUES (?, ?, ?, ?) " + "RETURNING id, nome, codigo, descricao, valor, created_at, updated_at";
-        List<Produto> out = db.query(sql, MAPPER, entity.getNome(), entity.getCodigo(), entity.getDescricao(), entity.getValor());
+    public Produto save(Produto e) {
+        Boolean ativo = (e.getAtivo() != null) ? e.getAtivo() : Boolean.TRUE;
+        String categoria = (e.getCategoria() != null) ? e.getCategoria().name() : null;
+
+        String sql = "INSERT INTO \"Produto\" (nome, codigo, descricao, valor, categoria, ativo) " +
+                "VALUES (?, ?, ?, ?, ?, ?) " +
+                "RETURNING id, nome, codigo, descricao, valor, categoria, ativo, created_at, updated_at";
+
+        var out = db.query(sql, MAPPER, e.getNome(), e.getCodigo(), e.getDescricao(), e.getValor(), categoria, ativo);
+
         if (out.isEmpty()) throw new RuntimeException("Falha ao inserir produto.");
         Produto saved = out.get(0);
-        entity.setId(saved.getId());
-        entity.setCreatedAt(saved.getCreatedAt());
-        entity.setUpdatedAt(saved.getUpdatedAt());
-        return entity;
+        e.setId(saved.getId());
+        e.setCreatedAt(saved.getCreatedAt());
+        e.setUpdatedAt(saved.getUpdatedAt());
+        e.setAtivo(saved.getAtivo());
+        e.setCategoria(saved.getCategoria());
+        return e;
     }
 
-    @Override
-    public Produto update(Produto entity) {
-        String sql = "UPDATE " + TABLE + " SET nome = ?, codigo = ?, descricao = ?, valor = ? " + "WHERE id = ? " + "RETURNING id, nome, codigo, descricao, valor, created_at, updated_at";
-        List<Produto> out = db.query(sql, MAPPER, entity.getNome(), entity.getCodigo(), entity.getDescricao(), entity.getValor(), entity.getId());
-        if (out.isEmpty()) throw new RuntimeException("Produto não encontrado: id=" + entity.getId());
+    public Produto update(Produto e) {
+        Boolean ativo = (e.getAtivo() != null) ? e.getAtivo() : Boolean.TRUE;
+        String categoria = (e.getCategoria() != null) ? e.getCategoria().name() : null;
+
+        String sql = "UPDATE \"Produto\" SET nome = ?, codigo = ?, descricao = ?, valor = ?, categoria = ?, ativo = ? " +
+                "WHERE id = ? " +
+                "RETURNING id, nome, codigo, descricao, valor, categoria, ativo, created_at, updated_at";
+
+        var out = db.query(sql, MAPPER, e.getNome(), e.getCodigo(), e.getDescricao(), e.getValor(), categoria, ativo, e.getId());
+
+        if (out.isEmpty()) throw new RuntimeException("Produto não encontrado: id=" + e.getId());
         Produto up = out.get(0);
-        entity.setCreatedAt(up.getCreatedAt());
-        entity.setUpdatedAt(up.getUpdatedAt());
-        return entity;
+        e.setCreatedAt(up.getCreatedAt());
+        e.setUpdatedAt(up.getUpdatedAt());
+        e.setAtivo(up.getAtivo());
+        e.setCategoria(up.getCategoria());
+        return e;
     }
 
     @Override
     public Optional<Produto> findById(Integer id) {
-        String sql = "SELECT id, nome, codigo, descricao, valor, created_at, updated_at FROM " + TABLE + " WHERE id = ?";
+        String sql = "SELECT id, nome, codigo, descricao, valor, categoria, ativo, created_at, updated_at FROM " + TABLE + " WHERE id = ?";
         List<Produto> list = db.query(sql, MAPPER, id);
         return list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
     }
@@ -65,7 +82,7 @@ public class ProdutoDAO implements IProdutoDAO {
 
     @Override
     public List<Produto> findAll() {
-        String sql = "SELECT id, nome, codigo, descricao, valor, created_at, updated_at FROM " + TABLE + " ORDER BY id";
+        String sql = "SELECT id, nome, codigo, descricao, valor, categoria, ativo, created_at, updated_at FROM " + TABLE + " ORDER BY id";
         return db.query(sql, MAPPER);
     }
 
@@ -77,7 +94,7 @@ public class ProdutoDAO implements IProdutoDAO {
 
     @Override
     public Optional<Produto> findByCodigo(String codigo) {
-        String sql = "SELECT id, nome, codigo, descricao, valor, created_at, updated_at FROM " + TABLE + " WHERE codigo = ?";
+        String sql = "SELECT id, nome, codigo, descricao, valor, categoria, ativo, created_at, updated_at FROM " + TABLE + " WHERE codigo = ?";
         List<Produto> list = db.query(sql, MAPPER, codigo);
         return list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
     }

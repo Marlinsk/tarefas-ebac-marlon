@@ -24,13 +24,22 @@ public class Produto extends BaseEntity {
     @TableColumn(dbName = "valor", setJavaName = "setValor")
     private BigDecimal valor;
 
+    // Novos campos
+    @TableColumn(dbName = "categoria", setJavaName = "setCategoria")
+    private ProdutoCategoria produtoCategoria;
+
+    @TableColumn(dbName = "ativo", setJavaName = "setAtivo")
+    private Boolean ativo;
+
     public Produto() {}
 
-    public Produto(String nome, String codigo, String descricao, BigDecimal valor) {
+    public Produto(String nome, String codigo, String descricao, BigDecimal valor, ProdutoCategoria produtoCategoria, Boolean ativo) {
         this.nome = nome;
         this.codigo = codigo;
         this.descricao = descricao;
         this.valor = valor;
+        this.produtoCategoria = produtoCategoria;
+        this.ativo = ativo;
     }
 
     public String getNome() {
@@ -65,6 +74,22 @@ public class Produto extends BaseEntity {
         this.valor = valor;
     }
 
+    public ProdutoCategoria getCategoria() {
+        return produtoCategoria;
+    }
+
+    public void setCategoria(ProdutoCategoria produtoCategoria) {
+        this.produtoCategoria = produtoCategoria;
+    }
+
+    public Boolean getAtivo() {
+        return ativo;
+    }
+
+    public void setAtivo(Boolean ativo) {
+        this.ativo = ativo;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof Produto)) return false;
@@ -80,6 +105,7 @@ public class Produto extends BaseEntity {
 
     @Override
     public String toString() {
-        return String.format("{ id=%s, nome=%s, codigo=%s, descricao=%s, valor=%s, createdAt=%s, updatedAt=%s }", this.getId(), this.nome, this.codigo, this.descricao, this.valor, this.getCreatedAt(), this.getUpdatedAt());
+        return String.format("{ id=%s, nome=%s, codigo=%s, descricao=%s, valor=%s, categoria=%s, ativo=%s, createdAt=%s, updatedAt=%s }", this.getId(), this.nome, this.codigo, this.descricao, this.valor, this.produtoCategoria, this.ativo, getCreatedAt(), getUpdatedAt()
+        );
     }
 }

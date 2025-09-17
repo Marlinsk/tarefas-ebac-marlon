@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Properties;
 
 public class JdbcDatabaseAdapter implements DatabaseAdapter {
+
     private final String url;
     private final Properties props;
     private Connection conn;
@@ -162,6 +163,13 @@ public class JdbcDatabaseAdapter implements DatabaseAdapter {
                     return n.intValue() != 0;
                 }
                 return Boolean.parseBoolean(v.toString());
+            }
+
+            if (to.isEnum()) {
+                String s = v.toString();
+                @SuppressWarnings("unchecked")
+                Class<? extends Enum> enumClass = (Class<? extends Enum>) to;
+                return Enum.valueOf(enumClass, s);
             }
 
             if (to == String.class) {

@@ -29,7 +29,7 @@ public class ClienteDAOServiceTest {
         Properties p = new Properties();
         p.setProperty("user", USER);
         p.setProperty("password", PASS);
-        db = new JdbcDatabaseAdapter(URL, p) {};
+        db = new JdbcDatabaseAdapter(URL, p);
         db.connect();
         assertTrue(db.isConnected());
 
@@ -40,6 +40,17 @@ public class ClienteDAOServiceTest {
                 "email TEXT UNIQUE," +
                 "created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()," +
                 "updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW())");
+
+        db.execute("CREATE UNIQUE INDEX IF NOT EXISTS uq_cliente_cpf ON \"Cliente\"(cpf)");
+
+        db.execute("ALTER TABLE \"Cliente\" ADD COLUMN IF NOT EXISTS cpf TEXT");
+        db.execute("ALTER TABLE \"Cliente\" ADD COLUMN IF NOT EXISTS tel TEXT");
+        db.execute("ALTER TABLE \"Cliente\" ADD COLUMN IF NOT EXISTS endereco TEXT");
+        db.execute("ALTER TABLE \"Cliente\" ADD COLUMN IF NOT EXISTS numero INT");
+        db.execute("ALTER TABLE \"Cliente\" ADD COLUMN IF NOT EXISTS cidade TEXT");
+        db.execute("ALTER TABLE \"Cliente\" ADD COLUMN IF NOT EXISTS estado TEXT");
+        db.execute("ALTER TABLE \"Cliente\" ADD COLUMN IF NOT EXISTS bairro TEXT");
+        db.execute("ALTER TABLE \"Cliente\" ADD COLUMN IF NOT EXISTS cep TEXT");
 
         db.execute("CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$ BEGIN NEW.updated_at := NOW(); RETURN NEW; END; $$ LANGUAGE plpgsql;");
         db.execute("DROP TRIGGER IF EXISTS trg_cliente_updated ON \"Cliente\"");
@@ -66,7 +77,7 @@ public class ClienteDAOServiceTest {
 
     @Test
     public void test02_crudDAO() {
-        Cliente c = new Cliente("João Silva", "421.678.098-11","joao.silva@example.com");
+        Cliente c = new Cliente("João Silva", "421.678.098-11", "joao.silva@example.com", "(51) 2987-0030", "Rua das Bananeiras", 477, "Sapucaia do Sul", "RS", "Zoológico", "93211-708");
         c = dao.save(c);
         assertNotNull(c.getId());
         assertNotNull(c.getCreatedAt());
@@ -99,7 +110,7 @@ public class ClienteDAOServiceTest {
 
     @Test
     public void test03_crudService() {
-        Cliente c = new Cliente("Maria Oliveira", "678.987.456-26", "maria.oliveira@example.com");
+        Cliente c = new Cliente("Maria Oliveira", "678.987.456-26", "maria.oliveira@example.com", "(55) 98998-8735", "Avenida Getúlio Vargas 1250", 204, "Doutor Maurício Cardoso", "RS", "Centro", "98925-970");
         c = service.criar(c);
         assertNotNull(c.getId());
 
