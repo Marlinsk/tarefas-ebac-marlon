@@ -4,7 +4,6 @@ import java.util.List;
 
 public class TrocoMinimo {
 
-
     public static int calcularTrocoMinimo(int quantia, int[] moedas) {
         Arrays.sort(moedas);
         inverterArray(moedas);
