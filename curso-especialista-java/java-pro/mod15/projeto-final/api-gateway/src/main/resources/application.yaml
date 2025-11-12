@@ -1,0 +1,25 @@
+server:
+  port: 9000
+
+spring:
+  application:
+    name: api-gateway
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,gateway
+  endpoint:
+    gateway:
+      enabled: true
+  metrics:
+    export:
+      simple:
+        enabled: true
+
+logging:
+  level:
+    br.com.ebac.memelandia: INFO
+    org.springframework.web: INFO
+    org.springframework.cloud.gateway: DEBUG

@@ -1,0 +1,109 @@
+version: '3.8'
+
+services:
+
+  usuario-service:
+    build:
+      context: ./usuario-service
+      dockerfile: Dockerfile
+    container_name: usuario-service
+    ports:
+      - "9001:9001"
+    networks:
+      - memelandia-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SERVER_PORT=9001
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9001/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+
+  categoria-service:
+    build:
+      context: ./categoria-service
+      dockerfile: Dockerfile
+    container_name: categoria-service
+    ports:
+      - "9002:9002"
+    networks:
+      - memelandia-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SERVER_PORT=9002
+      - USUARIO_SERVICE_URL=http://usuario-service:9001
+    depends_on:
+      usuario-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9002/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+
+  memes-service:
+    build:
+      context: ./memes-service
+      dockerfile: Dockerfile
+    container_name: memes-service
+    ports:
+      - "9003:9003"
+    networks:
+      - memelandia-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SERVER_PORT=9003
+      - USUARIO_SERVICE_URL=http://usuario-service:9001
+      - CATEGORIA_SERVICE_URL=http://categoria-service:9002
+    depends_on:
+      usuario-service:
+        condition: service_healthy
+      categoria-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9003/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    ports:
+      - "9000:9000"
+    networks:
+      - memelandia-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SERVER_PORT=9000
+      - USUARIO_SERVICE_URL=http://usuario-service:9001
+      - CATEGORIA_SERVICE_URL=http://categoria-service:9002
+      - MEMES_SERVICE_URL=http://memes-service:9003
+    depends_on:
+      usuario-service:
+        condition: service_healthy
+      categoria-service:
+        condition: service_healthy
+      memes-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+
+networks:
+  memelandia-network:
+    driver: bridge
+    name: memelandia-network
